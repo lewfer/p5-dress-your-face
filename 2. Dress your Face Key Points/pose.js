@@ -1,3 +1,5 @@
+// Helper functions for using posenet for face dressing
+
 // Global variables
 let video
 let poseNet
@@ -75,7 +77,7 @@ function gotPoses(poses) {
     // Angle that ears are tilting
     pose["earTiltAngle"] = atan(pose.earDistY/pose.earDistX)    
     
-    // Degree of rotation (-100 to +100, 0 being not rotated)
+    // Degree of side-to-side rotation (-100 to +100, 0 being not rotated)
     pose["headRotation"] = (pose.noseLeftEarXDist - pose.noseRightEarXDist)/pose.earDist*100
     
     pose["scale"] = pose.eyeDist/120
@@ -92,13 +94,14 @@ function drawKeyPointsEyes() {
   rectMode(CORNER)
   
   noStroke()
-  fill("green")
+  fill("limegreen")
   circle(pose.leftEye.x, pose.leftEye.y, 10)
   circle(pose.rightEye.x, pose.rightEye.y, 10)
-  //circle(pose.midEye.x, pose.midEye.y, 5)  
+  circle(pose.midEye.x, pose.midEye.y, 5)  
   
-  label("left eye", pose.leftEye.x, pose.leftEye.y+10)  
-  label("right eye", pose.rightEye.x, pose.rightEye.y+10)  
+  label("leftEye", pose.leftEye.x, pose.leftEye.y+10, "limegreen")  
+  label("rightEye", pose.rightEye.x, pose.rightEye.y+10, "limegreen")  
+  label("midEye", pose.midEye.x, pose.midEye.y+10, "limegreen")  
   
   pop()
 }
@@ -111,10 +114,10 @@ function drawKeyPointsNose() {
   rectMode(CORNER)
   
   noStroke()
-  fill("red")
+  fill("orangered")
   circle(pose.nose.x, pose.nose.y, 10)  
 
-  label("nose", pose.nose.x, pose.nose.y+10)  
+  label("nose", pose.nose.x, pose.nose.y+10, "orangered")  
   
   pop()
 }
@@ -127,35 +130,40 @@ function drawKeyPointsEars() {
   rectMode(CORNER)
   
   noStroke()
-  fill("blue")
+  fill("royalblue")
   circle(pose.leftEar.x, pose.leftEar.y, 10)
   circle(pose.rightEar.x, pose.rightEar.y, 10)
-  //circle(pose.midEar.x, pose.midEar.y, 5)  
+  circle(pose.midEar.x, pose.midEar.y, 5)  
   
-  label("left ear", pose.leftEar.x, pose.leftEar.y+10)  
-  label("right ear", pose.rightEar.x, pose.rightEar.y+10)  
+  label("leftEar", pose.leftEar.x, pose.leftEar.y+10, "royalblue")  
+  label("rightEar", pose.rightEar.x, pose.rightEar.y+10, "royalblue")  
+  label("midEar", pose.midEar.x, pose.midEar.y+10, "royalblue")  
   
   pop()
 }
 
 function drawKeyPointsEyeDistance() {
-  
+  // Show the distance between the eyes
+
   push()
   textAlign(LEFT, TOP)  
   rectMode(CORNER)
   
   noFill()
-  stroke("green")
+  stroke("limegreen")
   strokeWeight(2)
-  line(pose.leftEye.x, pose.leftEye.y, pose.rightEye.x, pose.rightEye.y)
-  label(nf(round(pose.eyeDist)), 
+  //line(pose.leftEye.x, pose.leftEye.y, pose.rightEye.x, pose.rightEye.y)
+  label("eyeDist "+nf(round(pose.eyeDist)), 
         pose.midEye.x, 
-        pose.midEye.y)    
+        pose.midEye.y-20,
+        "limegreen")    
   
   pop()
 }
 
 function drawKeyPointsEarDistance() {
+  // Show the distance between the ears
+
   push()
   textAlign(LEFT, TOP)  
   rectMode(CORNER)
@@ -180,18 +188,19 @@ function drawKeyPointsTilt() {
   rectMode(CORNER)
   
   noFill()
-  stroke("green")
+  stroke("chartreuse")
   strokeWeight(2)
-  line(pose.leftEye.x, pose.leftEye.y, pose.rightEye.x, pose.rightEye.y)
+  //line(pose.leftEye.x, pose.leftEye.y, pose.rightEye.x, pose.rightEye.y)
   line(pose.leftEye.x, pose.leftEye.y, pose.rightEye.x, pose.leftEye.y)
   
   angleFrom = min(180, 180+pose.eyeTiltAngle)
   angleTo = max(180, 180+pose.eyeTiltAngle)
   arc(pose.leftEye.x, pose.leftEye.y, 100, 100, angleFrom, angleTo)
   
-  label(nf(round(pose.eyeTiltAngle)), 
+  label("eyeTiltAngle " + nf(round(pose.eyeTiltAngle)), 
         pose.rightEye.x + 50, 
-        pose.leftEye.y+(pose.rightEye.y-pose.leftEye.y)/3 - 6)  
+        pose.leftEye.y+(pose.rightEye.y-pose.leftEye.y)/3 - 36,
+        "chartreuse")  
   
   pop()
 }
@@ -205,38 +214,53 @@ function drawKeyPointsRotation() {
   
   noFill()
   noStroke()
-  stroke("blue")
+  stroke("lightskyblue")
   strokeWeight(2)
-  line(pose.nose.x, pose.nose.y, pose.rightEar.x, pose.nose.y)
-  line(pose.nose.x, pose.nose.y, pose.leftEar.x, pose.nose.y)
+  line(pose.nose.x, pose.nose.y, pose.rightEar.x, pose.rightEar.y)
+  line(pose.nose.x, pose.nose.y, pose.leftEar.x, pose.leftEar.y)
   
-  label(nf(round(pose.noseRightEarXDist)) + "  " + nf(round(pose.noseLeftEarXDist)), 
+  label("noseRightEarXDist " + nf(round(pose.noseRightEarXDist)) + "  noseLeftEarXDist " + nf(round(pose.noseLeftEarXDist)), 
         pose.nose.x, 
-        pose.nose.y)
+        pose.nose.y+20,
+        "lightskyblue")
 
   
-  label(nf(round(pose.headRotation)), 
+  label("headRotation " + nf(round(pose.headRotation)), 
         pose.nose.x, 
-        pose.nose.y+12)  
+        pose.nose.y+42,
+        "lightskyblue")  
+  
+  label("scale " + nf(round(pose.scale,2)), 
+        pose.midEye.x, 
+        pose.midEye.y-100,
+        "magenta")  
   
   pop()
 }
 
-function label(t, x, y) {
+function label(t, x, y, colour) {
+  // Draw a text label at the given point
+
+  if (colour === undefined) {
+    colour = "white";
+  }
+  
   // Draw a label at the given point
   x = x - textWidth(t)/2
   noStroke()
   fill(0)
   rect(x, y, textWidth(t), 12)
-  fill("white")
+  fill(colour)
   text(t, x, y)    
 }
 
 function centreOn(x, y) {
+  // Change the drawing origin 0,0 to the given point
   translate(x, y)
 }
 
 function tilt() {
+  // Rotate the following drawing by the ear tilt angle
   rotate(pose.earTiltAngle)  
 }
 
@@ -274,7 +298,7 @@ function shiftUp(pixels) {
 }
 
 function shiftDown(pixels) {
-  // Shift following drawing up the given number of pixels on the head
+  // Shift following drawing down the given number of pixels on the head
   translate(-pixels * sin(pose.earTiltAngle), pixels * cos(pose.earTiltAngle))
 }
 
